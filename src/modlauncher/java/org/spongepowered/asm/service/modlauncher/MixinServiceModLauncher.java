@@ -33,6 +33,7 @@ import org.spongepowered.asm.launch.platform.container.ContainerHandleModLaunche
 import org.spongepowered.asm.logging.ILogger;
 import org.spongepowered.asm.mixin.MixinEnvironment.CompatibilityLevel;
 import org.spongepowered.asm.mixin.MixinEnvironment.Phase;
+import org.spongepowered.asm.mixin.transformer.IMixinTransformer;
 import org.spongepowered.asm.mixin.transformer.IMixinTransformerFactory;
 import org.spongepowered.asm.service.IClassBytecodeProvider;
 import org.spongepowered.asm.service.IClassProvider;
@@ -52,12 +53,12 @@ import cpw.mods.modlauncher.api.ITransformationService;
  * Mixin service for ModLauncher
  */
 public class MixinServiceModLauncher extends MixinServiceAbstract {
-    
+
     /**
      * Specification version to check for at startup
      */
     private static final String MODLAUNCHER_4_SPECIFICATION_VERSION = "4.0";
-    
+
     /**
      * Specification version for ModLauncher versions &gt;= 9.0.4, yes this is
      * not a typo, the specification version (API version) is out of step with
@@ -66,7 +67,7 @@ public class MixinServiceModLauncher extends MixinServiceAbstract {
      * 7.0).
      */
     private static final String MODLAUNCHER_9_SPECIFICATION_VERSION = "8.0";
-    
+
     private static final String CONTAINER_PACKAGE = MixinServiceAbstract.LAUNCH_PACKAGE + "platform.container.";
     private static final String MODLAUNCHER_4_ROOT_CONTAINER_CLASS = MixinServiceModLauncher.CONTAINER_PACKAGE + "ContainerHandleModLauncher";
     private static final String MODLAUNCHER_9_ROOT_CONTAINER_CLASS = MixinServiceModLauncher.CONTAINER_PACKAGE + "ContainerHandleModLauncherEx";
@@ -75,24 +76,24 @@ public class MixinServiceModLauncher extends MixinServiceAbstract {
      * Class provider, either uses hacky internals or provided service
      */
     private IClassProvider classProvider;
-    
+
     /**
      * Bytecode provider, either uses hacky internals or provided service
      */
     private IClassBytecodeProvider bytecodeProvider;
-    
+
     /**
      * Container for the mixin pipeline which is called by the launch plugin
      */
     private MixinTransformationHandler transformationHandler;
-    
+
     /**
      * Class tracker, tracks class loads and registered invalid classes
      */
     private ModLauncherClassTracker classTracker;
-    
+
     /**
-     * Audit trail adapter 
+     * Audit trail adapter
      */
     private ModLauncherAuditTrail auditTrail;
 
@@ -100,7 +101,7 @@ public class MixinServiceModLauncher extends MixinServiceAbstract {
      * Environment phase consumer, TEMP
      */
     private IConsumer<Phase> phaseConsumer;
-    
+
     /**
      * Only allow onInit to be called once
      */
@@ -115,7 +116,9 @@ public class MixinServiceModLauncher extends MixinServiceAbstract {
      * Minimum compatibility level
      */
     private CompatibilityLevel minCompatibilityLevel = CompatibilityLevel.JAVA_8;
-    
+
+    private static IMixinTransformer transformer;
+
     public MixinServiceModLauncher() {
         final Package pkg = ITransformationService.class.getPackage();
         if (pkg.isCompatibleWith(MixinServiceModLauncher.MODLAUNCHER_9_SPECIFICATION_VERSION)) {
@@ -125,10 +128,10 @@ public class MixinServiceModLauncher extends MixinServiceAbstract {
             this.createRootContainer(MixinServiceModLauncher.MODLAUNCHER_4_ROOT_CONTAINER_CLASS);
         }
     }
-    
+
     /**
      * Begin init
-     * 
+     *
      * @param bytecodeProvider bytecode provider
      */
     public void onInit(IClassBytecodeProvider bytecodeProvider) {
@@ -138,7 +141,7 @@ public class MixinServiceModLauncher extends MixinServiceAbstract {
         this.initialised = true;
         this.bytecodeProvider = bytecodeProvider;
     }
-    
+
     private void createRootContainer(String rootContainerClassName) {
         try {
             Class<?> clRootContainer = this.getClassProvider().findClass(rootContainerClassName);
@@ -155,10 +158,11 @@ public class MixinServiceModLauncher extends MixinServiceAbstract {
     public void onStartup() {
         this.phaseConsumer.accept(Phase.DEFAULT);
     }
-    
+
     @Override
     public void offer(IMixinInternal internal) {
         if (internal instanceof IMixinTransformerFactory) {
+            transformer = ((IMixinTransformerFactory) internal).createTransformer();
             this.getTransformationHandler().offer((IMixinTransformerFactory)internal);
         }
         super.offer(internal);
@@ -179,7 +183,7 @@ public class MixinServiceModLauncher extends MixinServiceAbstract {
     public String getName() {
         return "ModLauncher";
     }
-    
+
     /* (non-Javadoc)
      * @see org.spongepowered.asm.service.IMixinService
      *      #getMinCompatibilityLevel()
@@ -188,7 +192,7 @@ public class MixinServiceModLauncher extends MixinServiceAbstract {
     public CompatibilityLevel getMinCompatibilityLevel() {
         return this.minCompatibilityLevel;
     }
-    
+
     @Override
     protected ILogger createLogger(String name) {
         return new LoggerAdapterLog4j2(name);
@@ -232,7 +236,7 @@ public class MixinServiceModLauncher extends MixinServiceAbstract {
         }
         return this.bytecodeProvider;
     }
-    
+
     /* (non-Javadoc)
      * @see org.spongepowered.asm.service.IMixinService#getTransformerProvider()
      */
@@ -240,7 +244,7 @@ public class MixinServiceModLauncher extends MixinServiceAbstract {
     public ITransformerProvider getTransformerProvider() {
         return null;
     }
-    
+
     /* (non-Javadoc)
      * @see org.spongepowered.asm.service.IMixinService#getClassTracker()
      */
@@ -251,7 +255,7 @@ public class MixinServiceModLauncher extends MixinServiceAbstract {
         }
         return this.classTracker;
     }
-    
+
     /* (non-Javadoc)
      * @see org.spongepowered.asm.service.IMixinService#getAuditTrail()
      */
@@ -272,17 +276,18 @@ public class MixinServiceModLauncher extends MixinServiceAbstract {
         }
         return this.transformationHandler;
     }
-    
+
     /* (non-Javadoc)
      * @see org.spongepowered.asm.service.IMixinService#getPlatformAgents()
      */
     @Override
     public Collection<String> getPlatformAgents() {
         return ImmutableList.<String>of(
-            "org.spongepowered.asm.launch.platform.MixinPlatformAgentMinecraftForge"
+            "org.spongepowered.asm.launch.platform.MixinPlatformAgentMinecraftForge",
+            "org.spongepowered.asm.launch.platform.MixinPlatformAgentDefault"
         );
     }
-    
+
     /* (non-Javadoc)
      * @see org.spongepowered.asm.service.IMixinService#getPrimaryContainer()
      */
@@ -309,6 +314,10 @@ public class MixinServiceModLauncher extends MixinServiceAbstract {
             this.getTransformationHandler(),
             (IClassProcessor)this.getClassTracker()
         );
+    }
+
+    public static IMixinTransformer getTransformer() {
+        return transformer;
     }
 
 }
