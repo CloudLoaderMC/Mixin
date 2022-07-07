@@ -39,7 +39,7 @@ public class ModLauncherClassProvider implements IClassProvider {
     private static final String GET_SYSTEM_CLASS_PATH_METHOD = "getSystemClassPathURLs";
     private static final String JAVA9_CLASS_LOADER_UTIL_CLASS = "cpw.mods.gross.Java9ClassLoaderUtil";
 
-    ModLauncherClassProvider() {
+    public ModLauncherClassProvider() {
     }
 
     /* (non-Javadoc)
