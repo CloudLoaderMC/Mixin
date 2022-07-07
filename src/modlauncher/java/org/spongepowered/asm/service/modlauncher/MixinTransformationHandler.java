@@ -63,7 +63,7 @@ public class MixinTransformationHandler implements IClassProcessor {
      */
     private ISyntheticClassRegistry registry;
     
-    void offer(IMixinTransformerFactory transformerFactory) {
+    public void offer(IMixinTransformerFactory transformerFactory) {
         Preconditions.checkNotNull(transformerFactory, "transformerFactory");
         this.transformerFactory = transformerFactory;
     }
