@@ -1,3 +1,5 @@
+import ml.darubyminer360.gradleutils.GradleUtils
+
 // Gradle repositories and dependencies
 buildscript {
     repositories {
@@ -13,6 +15,10 @@ buildscript {
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
+plugins {
+    id 'ml.darubyminer360.gradleutils' version '2.2.0'
+}
+
 // Apply plugin
 apply plugin: 'java'
 apply plugin: 'com.github.hierynomus.license'
@@ -27,9 +33,10 @@ apply plugin: 'potemkin-modules'
 defaultTasks 'licenseFormat', 'check', 'build'
 
 // Basic project information
-group = 'net.fabricmc'
+group = 'ml.cloudmc'
 archivesBaseName = 'sponge-mixin'
-version = buildVersion + "+mixin." + upstreamMixinVersion
+//version = buildVersion + "+mixin." + upstreamMixinVersion
+version = gradleutils.getTagOffsetBranchVersion()
 
 
 def ENV = System.getenv()
@@ -60,6 +67,10 @@ repositories {
     maven {
         name = 'minecraft'
         url = 'https://libraries.minecraft.net/'
+    }
+    maven {
+        name = 'Cloud'
+        url = 'https://maven.cloudmc.ml/releases/'
     }
     maven {
         name = 'Fabric'
@@ -493,24 +504,15 @@ publishing {
             }
         }
     }
-
     repositories {
-        if (ENV.MAVEN_URL) {
-            maven {
-                url ENV.MAVEN_URL
-                credentials {
-                    username ENV.MAVEN_USERNAME
-                    password ENV.MAVEN_PASSWORD
-                }
-            }
-        }
+        maven GradleUtils.getPublishingCloudMaven(project)
     }
 }
 
 // A task to ensure that the version being released has not already been released.
 task checkVersion {
     doFirst {
-        def xml = new URL("https://maven.fabricmc.net/net/fabricmc/sponge-mixin/maven-metadata.xml").text
+        def xml = new URL("https://maven.cloudmc.ml/releases/ml/cloudmc/sponge-mixin/maven-metadata.xml").text
         def metadata = new XmlSlurper().parseText(xml)
         def versions = metadata.versioning.versions.version*.text();
         if (versions.contains(version)) {
