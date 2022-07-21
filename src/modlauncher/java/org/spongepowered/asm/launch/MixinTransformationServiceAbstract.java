@@ -35,6 +35,7 @@ import java.util.function.BiFunction;
 
 import com.google.common.collect.ImmutableList;
 
+import cpw.mods.modlauncher.ArgumentHandler;
 import cpw.mods.modlauncher.api.IEnvironment;
 import cpw.mods.modlauncher.api.ITransformationService;
 import cpw.mods.modlauncher.api.ITransformer;
@@ -70,7 +71,7 @@ public abstract class MixinTransformationServiceAbstract implements ITransformat
     }
 
     @Override
-    public void onLoad(IEnvironment environment, Set<String> otherServices) throws IncompatibleEnvironmentException {
+    public void onLoad(ArgumentHandler argumentHandler, IEnvironment environment, Set<String> otherServices) throws IncompatibleEnvironmentException {
     }
 
     @Override

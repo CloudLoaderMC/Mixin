@@ -213,7 +213,7 @@ dependencies {
     
     modlauncherImplementation 'net.sf.jopt-simple:jopt-simple:5.0.4'
     modlauncherCompileOnly 'org.apache.logging.log4j:log4j-core:2.0-beta9'
-    modlauncherImplementation ("cpw.mods:modlauncher:$legacyModlauncherVersion") {
+    modlauncherImplementation ("ml.cloudmc:ModLauncher:$legacyModlauncherVersion") {
         exclude module: 'asm'
         exclude module: 'asm-analysis'
         exclude module: 'asm-commons'
@@ -221,7 +221,7 @@ dependencies {
         exclude module: 'jopt-simple'
     }
     
-    modlauncher4Implementation ("cpw.mods:modlauncher:$legacyModlauncherVersion") {
+    modlauncher4Implementation ("ml.cloudmc:ModLauncher:$legacyModlauncherVersion") {
         exclude module: 'asm'
         exclude module: 'asm-analysis'
         exclude module: 'asm-commons'
@@ -229,7 +229,7 @@ dependencies {
         exclude module: 'jopt-simple'
     }
     
-    modlauncher9Implementation ("cpw.mods:modlauncher:$modlauncherVersion") {
+    modlauncher9Implementation ("ml.cloudmc:ModLauncher:$modlauncherVersion") {
         exclude module: 'jopt-simple'
     }
     modlauncher9Implementation 'cpw.mods:securejarhandler:0.9.+'
