@@ -140,4 +140,15 @@ public class MixinTransformationHandler implements IClassProcessor {
         return this.transformer.generateClass(MixinEnvironment.getCurrentEnvironment(), classType.getClassName(), classNode);
     }
 
+    public IMixinTransformer getTransformer() {
+        if (this.transformer == null) {
+            if (this.transformerFactory == null) {
+                throw new IllegalStateException("processClass called before transformer factory offered to transformation handler");
+            }
+            this.transformer = this.transformerFactory.createTransformer();
+            this.registry = this.transformer.getExtensions().getSyntheticClassRegistry();
+        }
+
+        return this.transformer;
+    }
 }

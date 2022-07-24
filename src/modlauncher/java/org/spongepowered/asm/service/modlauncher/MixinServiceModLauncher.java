@@ -117,7 +117,7 @@ public class MixinServiceModLauncher extends MixinServiceAbstract {
      */
     private CompatibilityLevel minCompatibilityLevel = CompatibilityLevel.JAVA_8;
 
-//    private static IMixinTransformer transformer;
+    private static IMixinTransformer transformer;
 
     public MixinServiceModLauncher() {
         final Package pkg = ITransformationService.class.getPackage();
@@ -164,6 +164,7 @@ public class MixinServiceModLauncher extends MixinServiceAbstract {
         if (internal instanceof IMixinTransformerFactory) {
 //            transformer = ((IMixinTransformerFactory) internal).createTransformer();
             this.getTransformationHandler().offer((IMixinTransformerFactory)internal);
+            transformer = this.getTransformationHandler().getTransformer();
         }
         super.offer(internal);
     }
@@ -316,8 +317,8 @@ public class MixinServiceModLauncher extends MixinServiceAbstract {
         );
     }
 
-    /*public static IMixinTransformer getTransformer() {
+    public static IMixinTransformer getTransformer() {
         return transformer;
-    }*/
+    }
 
 }
